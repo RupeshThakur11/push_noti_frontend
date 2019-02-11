@@ -1,0 +1,75 @@
+<html>
+<title>Firebase Messaging Demo</title>
+<style>
+    div {
+        margin-bottom: 15px;
+    }
+</style>
+<body>
+    <div ng-app="myApp" ng-controller="myCtrl"> 
+    <div id="token"></div>
+    <div id="msg"></div>
+    <div id="notis"></div>
+    <div id="err"></div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script>
+    var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope, $http) {
+  
+        MsgElem = document.getElementById("msg")
+        TokenElem = document.getElementById("token")
+        NotisElem = document.getElementById("notis")
+        ErrElem = document.getElementById("err")
+        // Initialize Firebase
+        // TODO: Replace with your project's customized code snippet
+        var config = {
+             
+            apiKey: "AIzaSyDp_GTEF0H4yv-QpfuvPjaWSX4kil9Y62I",
+            authDomain: "hybridappios.firebaseapp.com",
+            databaseURL: "https://hybridappios.firebaseio.com",
+            projectId: "hybridappios",
+            storageBucket: "hybridappios.appspot.com",
+            messagingSenderId: "325382419433" 
+ 
+
+        };
+        firebase.initializeApp(config);
+
+        const messaging = firebase.messaging();
+        messaging
+            .requestPermission()
+            .then(function () {
+                MsgElem.innerHTML = "Notification permission granted." 
+                console.log("Notification permission granted.");
+                
+                // get the token in the form of promise
+                return messaging.getToken()
+            })
+            .then(function(token) {
+                TokenElem.innerHTML = "token is : " + token
+            })
+            .catch(function (err) {
+                ErrElem.innerHTML =  ErrElem.innerHTML + "; " + err
+                console.log("Unable to get permission to notify.", err);
+            });
+
+        messaging.onMessage(function(payload) {
+            console.log("Message received. ", payload);
+            NotisElem.innerHTML = NotisElem.innerHTML + JSON.stringify(payload) 
+        });
+                $http({
+            method : "POST",
+            url : "https://node-push-ap.herokuapp.com/book"
+          }).then(function mySuccess(response) {
+              console.log(response.data);
+            }, function myError(response) {
+             console.log("Error");
+          });
+        });
+    </script>
+
+    </body>
+
+</html>
